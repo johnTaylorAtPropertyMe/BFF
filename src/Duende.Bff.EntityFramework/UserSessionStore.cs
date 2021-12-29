@@ -56,7 +56,15 @@ namespace Duende.Bff.EntityFramework
             if (item != null)
             {
                 _sessionDbContext.UserSessions.Remove(item);
-                await _sessionDbContext.SaveChangesAsync(cancellationToken);
+
+                try
+                {
+                    await _sessionDbContext.SaveChangesAsync(cancellationToken);
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    _logger.LogWarning(ex, "Caught exception when trying to delete user session for key {key}", key);
+                }
             }
             else
             {
